@@ -1,35 +1,38 @@
 <template>
-    <div>
-        <div class="tab-container">
-            <ul class="tab-list">
+    <div class="todo-search-form">
+        <div class="todo-search-form-block">
+            <div class="tab-container">
+                <ul class="tab-list">
+                    <li v-for="obj in filterItems" :key="obj.key">
+                        <a :class="{active: searchForm.filterKey === obj.key}"
+                           class="tab-item"
+                           @click="searchForm.filterKey = obj.key">{{ obj.label }}</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="todo-search-form-block">
+            <ul class="todo-search-form-items">
                 <li>
-                    <a :class="{active: searchForm.filterKey === filterKeys.ALL}"
-                       class="tab-item"
-                       @click="searchForm.filterKey = filterKeys.ALL">すべて</a>
+                    <todo-icon-input v-model="searchForm.freeText"
+                                     icon-name="search"
+                                     placeholder="Search By Free Word" />
                 </li>
                 <li>
-                    <a :class="{active: searchForm.filterKey === filterKeys.UNDONE}"
-                       class="tab-item"
-                       @click="searchForm.filterKey = filterKeys.UNDONE">未完了</a>
-                </li>
-                <li>
-                    <a :class="{active: searchForm.filterKey === filterKeys.DONE}"
-                       class="tab-item"
-                       @click="searchForm.filterKey = filterKeys.DONE">完了</a>
+                    <todo-selectbox v-model="searchForm.sortKey" :options="sortOptions" />
                 </li>
             </ul>
         </div>
-        <input v-model="searchForm.freeText" type="text" />
-        <select v-model="searchForm.sortKey">
-            <option v-for="obj in sortOptions" :value="obj.value">{{ obj.label }}</option>
-        </select>
     </div>
 </template>
 
 <script>
 import TodoSearchFormModel, {FilterKeys, SortKeys} from "../models/TodoSearchFormModel";
+import TodoIconInput from './atoms/TodoIconInput';
+import TodoSelectbox from './atoms/TodoSelectbox';
 
 export default {
+    components: {TodoSelectbox, TodoIconInput},
     props: {
         searchForm: {
             type: TodoSearchFormModel,
@@ -37,7 +40,11 @@ export default {
         }
     },
     computed: {
-        filterKeys: () => FilterKeys,
+        filterItems: () => [
+            { label: 'すべて', key: FilterKeys.ALL },
+            { label: '未完了', key: FilterKeys.UNDONE },
+            { label: '完了', key: FilterKeys.DONE },
+        ],
         sortOptions: () => [
             { label: '新規登録順', value: SortKeys.NEW },
             { label: '期限が近い順', value: SortKeys.DUE_DATE },
@@ -48,7 +55,21 @@ export default {
 
 <style lang="scss" scoped>
 @import "../assets/scss/variables";
+.todo-search-form {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+.todo-search-form-items {
+    display: flex;
+    align-items: center;
 
+    > li {
+        + li {
+            margin-left: 16px;
+        }
+    }
+}
 .tab-container {
     display: inline-block;
 }

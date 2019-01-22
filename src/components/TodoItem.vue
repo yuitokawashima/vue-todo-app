@@ -1,75 +1,84 @@
 <template>
     <article class="todo-item">
-        <div class="todo-item-main">
-            <label class="todo-checkbox-label">
-                <input :checked="todo.done"
-                       :value="true"
-                       :name="`todo-done-${todo.id}`"
-                       type="checkbox"
-                       class="todo-checkbox"
-                       @change="handleChangeDone">
-                <span class="todo-checkbox-circle"></span>
-            </label>
-            <span>{{ todo.title }}</span>
-        </div>
-        <div class="todo-item-sub">
-            <span class="todo-item-caption">{{ limitDateDisplay }}</span>
-            <div :class="{ active: isActiveMenu }"
-                 class="todo-item-menu"
-                 @click.stop="$emit('click-menu', $event, todo.id)"
-            >
-                <i class="material-icons todo-item-menu-trigger">more_horiz</i>
+        <template v-if="!activeEdit">
+            <div class="todo-item-main">
+                <todo-circle-checkbox
+                        v-model="todo.done"
+                        :value="true"
+                        :name="`todo-done-${todo.id}`"
+                        @change="handleChangeDone"
+                />
+                <span v-if="!activeEdit">{{ todo.title }}</span>
             </div>
-        </div>
+            <div class="todo-item-sub">
+                <span class="todo-item-caption">{{ limitDateDisplay }}</span>
+                <div :class="{ active: isActiveMenu }" class="todo-item-menu" @click.stop="$emit('click-menu', $event, todo.id)">
+                    <i class="material-icons todo-item-menu-trigger">more_horiz</i>
+                </div>
+            </div>
+        </template>
+        <template v-if="activeEdit">
+            <div class="todo-item-main">
+                <todo-input v-model="editForm.title" />
+                <todo-input text="date" v-model="editForm.limitTime" />
+            </div>
+            <div class="todo-item-sub">
+                <a @click="emitEndEdit">キャンセル</a>
+            </div>
+        </template>
     </article>
 </template>
 
 <script>
 import TodoModel from '../models/TodoModel'
 import {mapActions} from 'vuex'
+import TodoInput from './atoms/TodoInput';
+import TodoService from '../services/TodoService';
+import TodoCircleCheckbox from './atoms/TodoCircleCheckbox';
 
-const ONE_DAY_TIME = 1000 * 60 * 60 * 24;
+const todoService = new TodoService();
 
 export default {
+    components: {TodoCircleCheckbox, TodoInput},
     props: {
         todo: { type: TodoModel, required: true },
         activeMenu: { type: Boolean, default: false },
+        activeEdit: { type: Boolean, default: false }
     },
     data() {
         return {
-            isActiveMenu: false
+            isActiveMenu: false,
+            editForm: this.getInitialEditForm()
+        }
+    },
+    watch: {
+        activeEdit (v) {
+            if (v === true) {
+                this.editForm.title = this.todo.title;
+                this.editForm.limitTime = this.todo.limitTime;
+            } else {
+                this.editForm = this.getInitialEditForm();
+            }
         }
     },
     computed: {
         limitDateDisplay () {
-            if (!this.todo.limitTime) return null;
-            const limitDate = new Date(this.todo.limitTime);
-            const currentDate = new Date();
-
-            if (limitDate.getFullYear() === currentDate.getFullYear()) {
-                const limitMonth = limitDate.getMonth() + 1;
-                const limitDay = limitDate.getDate();
-
-                if (limitMonth === currentDate.getMonth() + 1) {
-                    const currentDay = currentDate.getDate();
-                    if (limitDay === currentDay) return '今日';
-                    if (limitDay === currentDay + 1) return '明日';
-                    return `${limitMonth}/${limitDay}`
-                } else {
-                    return `${limitMonth}/${limitDay}`
-                }
-            } else {
-                const limitYear = limitDate.getFullYear();
-                const limitMonth = limitDate.getMonth() + 1;
-                const limitDay = limitDate.getDate();
-                return `${limitYear}/${limitMonth}/${limitDay}`
-            }
+            return todoService.getLimitTimeDisplay(this.todo.limitTime)
         }
     },
     methods: {
         ...mapActions(['doneTodo']),
         handleChangeDone (e) {
             this.doneTodo({ id: this.todo.id, done: e.target.checked });
+        },
+        emitEndEdit () {
+            this.$emit('end-edit');
+        },
+        getInitialEditForm () {
+            return {
+                title: null,
+                limitTime: null
+            }
         }
     }
 }
@@ -162,54 +171,5 @@ export default {
 .todo-item-caption {
     color: $text-color-caption;
     font-size: $text-size-caption;
-}
-.todo-checkbox {
-    -webkit-appearance: none;
-    display: none;
-
-    &:checked {
-        + .todo-checkbox-circle {
-            background-color: #2e7b32;
-            border-color: #2e7b32;
-
-            &:before {
-                opacity: 1;
-                border-bottom-color: $bg-base;
-                border-left-color: $bg-base;
-            }
-        }
-    }
-}
-.todo-checkbox-circle {
-    position: relative;
-    display: block;
-    width: 24px;
-    height: 24px;
-    border: 1px solid $bd-color-base;
-    border-radius: 100%;
-    cursor: pointer;
-    transition: border-color 0.2s, background-color 0.2s;
-
-    &:hover {
-        &:before {
-            opacity: 1;
-        }
-    }
-
-    &:before {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        display: block;
-        width: 12px;
-        height: 6px;
-        border-bottom: 2px solid $bd-color-base;
-        border-left: 2px solid $bd-color-base;
-        transform: translate(-50%, -50%) rotate(-45deg);
-        margin-top: -2px;
-        opacity: 0;
-        transition: opacity 0.2s, border-bottom-color 0.2s, border-left-color 0.2s;
-    }
 }
 </style>

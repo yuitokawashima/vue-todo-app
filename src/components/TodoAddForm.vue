@@ -2,18 +2,19 @@
     <div>
         <form @submit.prevent="handleSubmit">
             <div class="todo-input-wrap">
-                <input
+                <todo-icon-input
                     v-model="form.title"
+                    icon-name="create"
                     type="text"
-                    :placeholder="inputPlaceholder"
+                    placeholder="Click Here to Add Task!"
                     @focus="focusedForm = true"
-                >
+                />
             </div>
             <div v-if="focusedForm" class="todo-form-sub">
-                <input v-model="form.limitTime" type="date" placeholder="Add Limit Date">
+                <todo-input v-model="form.limitTime" small type="date" placeholder="Add Limit Date" />
                 <div class="todo-form-action">
                     <a class="todo-link" @click="resetForm">キャンセル</a>
-                    <button :disabled="invalidForm" class="todo-button" type="submit">add</button>
+                    <todo-button :disabled="invalidForm" label="Add Todo" type="submit" />
                 </div>
             </div>
         </form>
@@ -22,8 +23,12 @@
 
 <script>
 import {mapActions} from 'vuex'
+import TodoInput from './atoms/TodoInput';
+import TodoButton from './atoms/TodoButton';
+import TodoIconInput from './atoms/TodoIconInput';
 
 export default {
+    components: {TodoIconInput, TodoButton, TodoInput},
     data() {
         return {
             focusedForm: false,
@@ -31,29 +36,21 @@ export default {
         }
     },
     computed: {
-        inputPlaceholder () {
-            return 'Click Here to Add Task!'
-        },
         invalidForm () {
-            return (
-                this.form.title === ''
-            )
+            return this.form.title === ''
         }
     },
     methods: {
         ...mapActions(['addTodo']),
         handleSubmit() {
-            this.addTodo({
-                title: this.form.title.trim(),
-                limitTime: new Date(this.form.limitTime).getTime()
-            });
+            const title = this.form.title.trim();
+            const limitTime = this.form.limitTime ? new Date(this.form.limitTime).getTime() : null;
+
+            this.addTodo({ title, limitTime });
             this.resetForm();
         },
         getInitialForm() {
-            return {
-                title: '',
-                limitTime: ''
-            }
+            return { title: '', limitTime: '' }
         },
         resetForm () {
             this.focusedForm = false;
@@ -66,28 +63,6 @@ export default {
 <style lang="scss" scoped>
 @import "../assets/scss/variables";
 
-input {
-    -webkit-appearance: none;
-    border: 1px solid $bd-color-base;
-    border-radius: 4px;
-    box-shadow: 1px 1px 3px 0 rgba(0, 0, 0, 0.1) inset;
-
-    &:focus {
-        outline-color: #4db6ac;
-    }
-
-    &[type="text"] {
-        padding: 8px 16px;
-        font-size: 15px;
-        width: 100%;
-    }
-    &[type="date"] {
-        padding: 4px 12px;
-        font-size: 13px;
-        width: 100%;
-        max-width: 180px;
-    }
-}
 .todo-form-sub {
     display: flex;
     align-items: center;
@@ -96,7 +71,7 @@ input {
 
     > * {
         + * {
-            margin-left: 24px;
+            margin-left: 32px;
         }
     }
 }
@@ -106,7 +81,7 @@ input {
 
     > * {
         + * {
-            margin-left: 8px;
+            margin-left: 16px;
         }
     }
 }
@@ -117,34 +92,6 @@ input {
 
     &:hover {
         text-decoration: underline;
-    }
-}
-.todo-button {
-    position: relative;
-    -webkit-appearance: none;
-    display: inline-block;
-    padding: 8px 12px;
-    border: 1px solid #4db6ac;
-    border-radius: 4px;
-    background-color: #4db6ac;
-    color: #FFFFFF;
-    transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
-    outline: none;
-    cursor: pointer;
-
-    &:active {
-        box-shadow: $shadow-base;
-    }
-
-    &:hover {
-        background-color: #26a69a;
-    }
-    
-    &[disabled] {
-        background-color: #E1E1E1;
-        border-color: #E1E1E1;
-        color: #C0C0C0;
-        cursor: not-allowed;
     }
 }
 </style>

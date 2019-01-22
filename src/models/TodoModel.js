@@ -5,7 +5,7 @@ export default class TodoModel {
             title,
             limitTime,
             done = false,
-            registeredTime = new Date()
+            createdTime = new Date()
         }
     ) {
         Object.assign(this, {
@@ -13,7 +13,7 @@ export default class TodoModel {
             title,
             limitTime,
             done,
-            registeredTime
+            createdTime
         })
     }
 }

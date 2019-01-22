@@ -4,7 +4,10 @@
           <li v-for="todo in todos" :key="todo.id">
               <todo-item
                   :todo="todo"
+                  :active-menu="activeActionId === todo.id"
+                  :active-edit="editableTodoId === todo.id"
                   @click-menu="handleClickMenu"
+                  @end-edit="editableTodoId = null"
               />
           </li>
       </transition-group>
@@ -26,11 +29,13 @@
 <script>
 import TodoItem from './TodoItem'
 import {mapActions} from 'vuex'
+import DomService from '../services/DomService';
 
 const ActionItems = {
     Edit: { key: 'edit', label: '編集' },
     Delete: { key: 'delete', label: '削除' },
 };
+const domService = new DomService();
 
 export default {
     components: {TodoItem},
@@ -54,10 +59,7 @@ export default {
             return this.activeActionId !== null;
         },
         todoActionStyle () {
-            return {
-                left: `${this.actionLeft}px`,
-                top: `${this.actionTop}px`,
-            }
+            return { left: `${this.actionLeft}px`, top: `${this.actionTop}px`, }
         }
     },
     methods: {
@@ -68,34 +70,30 @@ export default {
             this.actionLeft = rect.left + rect.width;
             this.actionTop = rect.top + rect.height;
             this.activeActionId = id;
-            document.addEventListener('click', this.handleClickDocument, false);
+            this.bindClickDocumentEvent();
         },
         handleClickActionLink (key) {
             switch (key) {
                 case ActionItems.Edit.key:
-                    this.editableTodoId = this.activeActionId;break;
+                    this.editableTodoId = this.activeActionId; break;
                 case ActionItems.Delete.key:
-                    this.deleteTodo(this.activeActionId);break;
+                    this.deleteTodo(this.activeActionId); break;
             }
             this.resetActiveActionId();
         },
         handleClickDocument(e) {
-            if (this.closest(e.target, '#vi-todo-action') === null) {
-                this.resetActiveActionId();
-            }
+            if (domService.closestElement(e.target, '#vi-todo-action') !== null) return;
+            this.resetActiveActionId();
         },
         resetActiveActionId () {
             this.activeActionId = null;
-            document.removeEventListener('click', this.handleClickDocument, false);
+            this.unbindClickDocumentEvent();
         },
-        closest (node, selector) {
-            return (node.closest || function(_selector) {
-                do {
-                    if ((node.matches || node.msMatchesSelector).call(node, _selector)) return node;
-                    node = node.parentElement || node.parentNode;
-                } while (node !== null && node.nodeType === 1);
-                return null;
-            }).call(node, selector);
+        bindClickDocumentEvent () {
+            document.addEventListener('click', this.handleClickDocument, false);
+        },
+        unbindClickDocumentEvent () {
+            document.removeEventListener('click', this.handleClickDocument, false);
         }
     }
 }

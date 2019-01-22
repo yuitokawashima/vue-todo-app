@@ -15,9 +15,12 @@
 <script>
 import TodoList from './components/TodoList'
 import TodoAddForm from './components/TodoAddForm'
-import TodoSearchFormModel, {FilterKeys, SortKeys} from './models/TodoSearchFormModel'
+import TodoSearchFormModel from './models/TodoSearchFormModel'
 import TodoSearchForm from './components/TodoSearchForm'
 import {mapState} from 'vuex'
+import TodoService from './services/TodoService';
+
+const todoService = new TodoService();
 
 export default {
     components: {
@@ -37,32 +40,10 @@ export default {
         searchedTodos () {
             let todos = this.todos.slice(0);
 
-            todos = this.searchByText(todos);
-            todos = this.filterTodos(todos);
-            return this.sortTodos(todos);
-        }
-    },
-    methods: {
-        filterTodos (todos) {
-            return todos.filter((v) => {
-                switch (this.searchForm.filterKey) {
-                    case FilterKeys.ALL: return true;
-                    case FilterKeys.DONE: return v.done;
-                    case FilterKeys.UNDONE: return !v.done;
-                }
-            });
-        },
-        searchByText (todos) {
-            if (this.searchForm.freeText === '') return todos;
-            return todos.filter((v) => v.title.indexOf(this.searchForm.freeText) !== -1);
-        },
-        sortTodos (todos) {
-            switch (this.searchForm.sortKey) {
-                case SortKeys.NEW:
-                    return todos.sort((a, b) => a.registeredTime > b.registeredTime ? 1 : -1);
-                case SortKeys.DUE_DATE:
-                    return todos.sort((a, b) => a.limitTime !== null || a.limitTime > b.limitTime ? 1 : -1);
-            }
+            todos = todoService.searchByFreeText(todos, this.searchForm.freeText);
+            todos = todoService.filterTodos(todos, this.searchForm.filterKey);
+
+            return todoService.sortTodos(todos, this.searchForm.sortKey);
         }
     }
 };
@@ -75,9 +56,12 @@ export default {
     -moz-osx-font-smoothing: grayscale;
     color: #2c3e50;
     padding: 40px;
+    max-width: 1080px;
+    margin-left: auto;
+    margin-right: auto;
 }
 .todo-search-section {
-    margin-top: 32px;
+    margin-top: 40px;
 }
 .todo-list-section {
     margin-top: 16px;

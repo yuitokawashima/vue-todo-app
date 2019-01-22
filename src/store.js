@@ -8,10 +8,13 @@ let lastId = 2;
 
 export default new Vuex.Store({
     state () {
+        const year = new Date().getFullYear();
+        const month = new Date().getMonth();
+        const day = new Date().getDate();
         return {
             todos: [
-                new TodoModel({id: 0, title: 'sample1', limitTime: new Date().getTime()}),
-                new TodoModel({id: 1, title: 'sample2', limitTime: new Date().getTime()}),
+                new TodoModel({id: 0, title: 'sample1', limitTime: new Date(year, month, day).getTime()}),
+                new TodoModel({id: 1, title: 'sample2', limitTime: new Date(year, month, day).getTime()}),
             ]
         }
     },
