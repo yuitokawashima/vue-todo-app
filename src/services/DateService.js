@@ -3,6 +3,7 @@ export default class DateService {
     WEEK =  [ "日", "月", "火", "水", "木", "金", "土" ];
 
     formatDate(date, format = 'YYYY/MM/DD HH:mm:ss AP') {
+        console.log(date)
         if (!date) return null;
 
         format = format.replace(/YYYY/g, date.getFullYear());

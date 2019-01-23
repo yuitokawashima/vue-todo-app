@@ -1,21 +1,16 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import TodoModel from "./models/TodoModel";
+import TodoStorageService from "./services/TodoStorageService";
 
 Vue.use(Vuex);
 
-let lastId = 2;
+const todoStorageService = new TodoStorageService();
 
 export default new Vuex.Store({
     state () {
-        const year = new Date().getFullYear();
-        const month = new Date().getMonth();
-        const day = new Date().getDate();
         return {
-            todos: [
-                new TodoModel({id: 0, title: 'sample1', limitTime: new Date(year, month, day).getTime()}),
-                new TodoModel({id: 1, title: 'sample2', limitTime: new Date(year, month, day).getTime()}),
-            ]
+            todos: todoStorageService.getTodos().map((v) => new TodoModel(v))
         }
     },
     mutations: {
@@ -23,7 +18,6 @@ export default new Vuex.Store({
             state.todos = state.todos.concat([todo]);
         },
         deleteTodo (state, id) {
-            console.log(id);
             state.todos = state.todos.filter((v) => v.id !== id);
         },
         editTodo (state, { id, title, limitTime }) {
@@ -41,19 +35,23 @@ export default new Vuex.Store({
         }
     },
     actions: {
-        addTodo ({commit}, { title, limitTime }) {
-            const todo = new TodoModel({ id: lastId++, title, limitTime });
-            console.log(todo);
+        addTodo ({commit, state}, { title, limitTime }) {
+            const id = todoStorageService.generateId();
+            const todo = new TodoModel({ id, title, limitTime });
             commit('addTodo', todo);
+            todoStorageService.setTodos(state.todos);
         },
-        deleteTodo ({commit}, todoId) {
+        deleteTodo ({commit, state}, todoId) {
             commit('deleteTodo', todoId);
+            todoStorageService.setTodos(state.todos);
         },
-        editTodo ({commit}, { id, title, limitDate }) {
-            commit('editTodo', { id, title, limitDate });
+        editTodo ({commit, state}, { id, title, limitTime }) {
+            commit('editTodo', { id, title, limitTime });
+            todoStorageService.setTodos(state.todos);
         },
-        doneTodo ({commit}, { id, done }) {
+        doneTodo ({commit, state}, { id, done }) {
             commit('doneTodo', { id, done });
+            todoStorageService.setTodos(state.todos);
         }
     }
 })

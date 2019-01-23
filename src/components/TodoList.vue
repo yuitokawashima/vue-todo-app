@@ -7,6 +7,7 @@
                   :active-menu="activeActionId === todo.id"
                   :active-edit="editableTodoId === todo.id"
                   @click-menu="handleClickMenu"
+                  @start-edit="editableTodoId = todo.id"
                   @end-edit="editableTodoId = null"
               />
           </li>
@@ -32,8 +33,8 @@ import {mapActions} from 'vuex'
 import DomService from '../services/DomService';
 
 const ActionItems = {
-    Edit: { key: 'edit', label: '編集' },
-    Delete: { key: 'delete', label: '削除' },
+    Edit: { key: 'edit', label: 'Edit Todo' },
+    Delete: { key: 'delete', label: 'Delete Todo' },
 };
 const domService = new DomService();
 

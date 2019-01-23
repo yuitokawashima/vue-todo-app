@@ -4,6 +4,7 @@
         :class="[variation]"
         :disabled="disabled"
         class="todo-button"
+        @click="$emit('click')"
     >
         {{ label }}
     </button>

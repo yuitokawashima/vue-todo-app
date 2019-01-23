@@ -26,13 +26,18 @@ export default class TodoService {
         switch (sortKey) {
             case SortKeys.NEW:
                 return todos.sort((a, b) => a.createdTime > b.createdTime ? 1 : -1);
-            case SortKeys.LIMIT:
-                return todos.sort((a, b) => a.limitTime > b.limitTime ? 1 : -1);
+            case SortKeys.LIMIT: {
+                const hasLimitTodos = todos.filter((v) => v.limitTime !== null).sort((a, b) => {
+                    return a.limitTime > b.limitTime ? 1 : -1;
+                });
+                const hasNotLimitTodos = todos.filter((v) => v.limitTime === null).sort((a, b) => a.createdTime > b.createdTime ? 1 : -1);
+                return hasLimitTodos.concat(hasNotLimitTodos)
+            }
         }
     }
 
     getLimitTimeDisplay (limitTime) {
-        if (!limitTime) return null;
+        if (!limitTime) return 'unset';
         const limitDate = new Date(limitTime);
         const limitYear = limitDate.getFullYear();
         const limitMonth = limitDate.getMonth() + 1;
@@ -42,8 +47,8 @@ export default class TodoService {
         if (limitYear === currentDate.getFullYear()) {
             if (limitMonth === currentDate.getMonth() + 1) {
                 const currentDay = currentDate.getDate();
-                if (limitDay === currentDay) return '今日';
-                if (limitDay === currentDay + 1) return '明日';
+                if (limitDay === currentDay) return 'today';
+                if (limitDay === currentDay + 1) return 'tomorrow';
             }
 
             return this.dateService.formatDate(limitDate, 'MM/DD');

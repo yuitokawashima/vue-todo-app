@@ -1,26 +1,34 @@
 export default class TodoStorageService {
 
-    STORAGE_KEY = 'todoList';
+    TODOS_STORAGE_KEY = 'todoList';
+    TODO_ID_STORAGE_KEY = 'todoId';
 
     constructor() {
-        this.key = this.STORAGE_KEY;
+        this.key = this.TODOS_STORAGE_KEY;
         this.storage = window.localStorage;
     }
 
-    setTodo(data) {
-        this.storage.setItem(this.key, data);
+    setTodos(todos) {
+        this.storage.setItem(this.TODOS_STORAGE_KEY, JSON.stringify(todos));
     }
 
-    getData() {
-        return this.storage.getItem(this.key);
+    getTodos() {
+        const todosString = this.storage.getItem(this.TODOS_STORAGE_KEY);
+        return todosString ? JSON.parse(todosString) : [];
     }
 
-    hasData() {
-        return this.getData(this.key) != null
-    }
+    generateId() {
+        let id;
+        const lastId = this.storage.getItem(this.TODO_ID_STORAGE_KEY);
+        if (lastId !== null) {
+            id = parseInt(lastId) + 1;
+        } else {
+            id = 1;
+        }
 
-    removeData() {
-        this.storage.removeItem(this.key);
+        this.storage.setItem(this.TODO_ID_STORAGE_KEY, id);
+
+        return id;
     }
 
 }

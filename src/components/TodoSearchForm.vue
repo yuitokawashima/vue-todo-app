@@ -42,13 +42,13 @@ export default {
     },
     computed: {
         filterItems: () => [
-            { label: 'すべて', key: FilterKeys.ALL },
-            { label: '未完了', key: FilterKeys.UNDONE },
-            { label: '完了', key: FilterKeys.DONE },
+            { label: 'All', key: FilterKeys.ALL },
+            { label: 'Undone', key: FilterKeys.UNDONE },
+            { label: 'Done', key: FilterKeys.DONE },
         ],
         sortOptions: () => [
-            { label: '新規登録順', value: SortKeys.NEW },
-            { label: '期限が近い順', value: SortKeys.LIMIT },
+            { label: 'sort by created time', value: SortKeys.NEW },
+            { label: 'sort by limit time', value: SortKeys.LIMIT },
         ]
     }
 }

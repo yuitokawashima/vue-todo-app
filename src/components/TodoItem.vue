@@ -1,5 +1,5 @@
 <template>
-    <article class="todo-item">
+    <article class="todo-item" @dblclick="handleDbClickTodo">
         <template v-if="!activeEdit">
             <div class="todo-item-main">
                 <todo-circle-checkbox
@@ -59,7 +59,11 @@ export default {
         activeEdit (v) {
             if (v === true) {
                 this.editForm.title = this.todo.title;
-                this.editForm.limitTime = dateService.formatDate(new Date(this.todo.limitTime), 'YYYY-MM-DD');
+                if (this.todo.limitTime) {
+                    this.editForm.limitTime = dateService.formatDate(new Date(this.todo.limitTime), 'YYYY-MM-DD')
+                } else {
+                    this.editForm.limitTime = '';
+                }
             } else {
                 this.editForm = this.getInitialEditForm();
             }
@@ -77,13 +81,14 @@ export default {
         },
         handleApplyEdit () {
             const title = this.editForm.title.trim();
-            const limitTime = this.editForm.limitTime ? new Date(this.editForm.limitTime) : null;
+            const limitTime = this.editForm.limitTime ? new Date(this.editForm.limitTime).getTime() : null;
 
-            this.editTodo({
-                id: this.todo.id,
-                title: title,
-                limitTime: limitTime
+            this.editTodo({ id: this.todo.id, title, limitTime }).then(() => {
+                this.emitEndEdit();
             });
+        },
+        handleDbClickTodo () {
+            this.$emit('start-edit');
         },
         emitEndEdit () {
             this.$emit('end-edit');
@@ -106,6 +111,7 @@ export default {
     align-items: center;
     justify-content: space-between;
     padding: 8px 8px 8px 16px;
+    user-select: none;
 
     &:hover {
         .todo-item-menu-trigger {

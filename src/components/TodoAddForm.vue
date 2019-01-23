@@ -13,7 +13,7 @@
             <div v-if="focusedForm" class="todo-form-sub">
                 <todo-input v-model="form.limitTime" small w-small type="date" placeholder="Add Limit Date" />
                 <div class="todo-form-action">
-                    <a class="todo-link" @click="resetForm">キャンセル</a>
+                    <a class="todo-link" @click="resetForm">cancel</a>
                     <todo-button :disabled="invalidForm" label="Add Todo" type="submit" />
                 </div>
             </div>
