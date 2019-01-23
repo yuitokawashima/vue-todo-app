@@ -12,18 +12,19 @@
             </div>
             <div class="todo-item-sub">
                 <span class="todo-item-caption">{{ limitDateDisplay }}</span>
-                <div :class="{ active: isActiveMenu }" class="todo-item-menu" @click.stop="$emit('click-menu', $event, todo.id)">
+                <div :class="{ active: activeMenu }" class="todo-item-menu" @click.stop="$emit('click-menu', $event, todo.id)">
                     <i class="material-icons todo-item-menu-trigger">more_horiz</i>
                 </div>
             </div>
         </template>
         <template v-if="activeEdit">
             <div class="todo-item-main">
-                <todo-input v-model="editForm.title" />
-                <todo-input text="date" v-model="editForm.limitTime" />
+                <todo-input v-model="editForm.title" small />
+                <todo-input type="date" v-model="editForm.limitTime" small />
             </div>
             <div class="todo-item-sub">
-                <a @click="emitEndEdit">キャンセル</a>
+                <todo-link-text @click="emitEndEdit">キャンセル</todo-link-text>
+                <todo-button label="OK" @click="handleApplyEdit" />
             </div>
         </template>
     </article>
@@ -35,11 +36,15 @@ import {mapActions} from 'vuex'
 import TodoInput from './atoms/TodoInput';
 import TodoService from '../services/TodoService';
 import TodoCircleCheckbox from './atoms/TodoCircleCheckbox';
+import TodoLinkText from './atoms/TodoLinkText';
+import TodoButton from './atoms/TodoButton';
+import DateService from '../services/DateService';
 
 const todoService = new TodoService();
+const dateService = new DateService();
 
 export default {
-    components: {TodoCircleCheckbox, TodoInput},
+    components: {TodoButton, TodoCircleCheckbox, TodoInput, TodoLinkText},
     props: {
         todo: { type: TodoModel, required: true },
         activeMenu: { type: Boolean, default: false },
@@ -47,7 +52,6 @@ export default {
     },
     data() {
         return {
-            isActiveMenu: false,
             editForm: this.getInitialEditForm()
         }
     },
@@ -55,7 +59,7 @@ export default {
         activeEdit (v) {
             if (v === true) {
                 this.editForm.title = this.todo.title;
-                this.editForm.limitTime = this.todo.limitTime;
+                this.editForm.limitTime = dateService.formatDate(new Date(this.todo.limitTime), 'YYYY-MM-DD');
             } else {
                 this.editForm = this.getInitialEditForm();
             }
@@ -67,9 +71,19 @@ export default {
         }
     },
     methods: {
-        ...mapActions(['doneTodo']),
-        handleChangeDone (e) {
-            this.doneTodo({ id: this.todo.id, done: e.target.checked });
+        ...mapActions(['doneTodo', 'editTodo']),
+        handleChangeDone (v) {
+            this.doneTodo({ id: this.todo.id, done: v });
+        },
+        handleApplyEdit () {
+            const title = this.editForm.title.trim();
+            const limitTime = this.editForm.limitTime ? new Date(this.editForm.limitTime) : null;
+
+            this.editTodo({
+                id: this.todo.id,
+                title: title,
+                limitTime: limitTime
+            });
         },
         emitEndEdit () {
             this.$emit('end-edit');
@@ -124,6 +138,7 @@ export default {
     width: 20px;
     height: 20px;
     cursor: pointer;
+    border-radius: 100%;
 
     &:before {
         content: '';
@@ -144,6 +159,10 @@ export default {
         &:before {
             border-color: $text-color-caption;
             transform: translate(-50%, -50%) scale(1);
+        }
+
+        .todo-item-menu-trigger {
+            opacity: 1;
         }
     }
 
@@ -166,6 +185,7 @@ export default {
     align-items: center;
     color: $text-color-caption;
     font-size: 17px;
+    opacity: 0;
     transition: transform 0.2s ease-in-out, opacity 0.2s ease-in-out;
 }
 .todo-item-caption {

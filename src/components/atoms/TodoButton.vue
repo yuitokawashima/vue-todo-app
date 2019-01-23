@@ -38,7 +38,8 @@ export default {
     position: relative;
     -webkit-appearance: none;
     display: inline-block;
-    padding: 8px 12px;
+    padding-left: 12px;
+    padding-right: 12px;
     border: 1px solid #4db6ac;
     border-radius: 4px;
     background-color: #4db6ac;
@@ -46,6 +47,9 @@ export default {
     transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
     outline: none;
     cursor: pointer;
+    height: 32px;
+    line-height: 32px;
+    font-size: 14px;
 
     &:active {
         box-shadow: $shadow-base;
@@ -53,6 +57,11 @@ export default {
 
     &:hover {
         background-color: #26a69a;
+    }
+
+    &.small {
+        height: 32px;
+        line-height: 32px;
     }
 
     &[disabled] {

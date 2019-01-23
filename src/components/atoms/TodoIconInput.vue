@@ -5,7 +5,7 @@
             :type="type"
             :placeholder="placeholder"
             :name="name"
-            :class="{small}"
+            :class="{active, small}"
             @input="update"
             @focus="$emit('focus')"
             @blur="$emit('blur')"
@@ -42,6 +42,11 @@ export default {
             default: false
         }
     },
+    computed: {
+        active () {
+            return this.value !== ''
+        }
+    },
     methods: {
         update (e) {
             this.$emit('input', e.target.value);
@@ -61,32 +66,38 @@ export default {
     border: 1px solid $bd-color-base;
     box-shadow: 1px 1px 3px 0 rgba(0, 0, 0, 0.1) inset;
 
-    &.small {
-        input {
-            padding: 4px 12px 4px 40px;
-
-            &:focus {
-                padding-left: 16px;
-            }
-        }
-    }
-
     input {
         -webkit-appearance: none;
         border: 0;
-        padding: 8px 16px 8px 40px;
+        padding-right: 16px;
+        padding-left: 40px;
         outline: none;
         background: none;
         transition: padding-left 0.2s;
         width: 100%;
         font-size: 14px;
         color: $text-color-base;
+        min-width: 240px;
+        height: 40px;
+        line-height: 40px;
 
-        &:focus {
+        &:focus,
+        &.active {
             padding-left: 16px;
 
             + .material-icons {
                 transform: translateY(-50%) scale(0);
+            }
+        }
+
+        &.small {
+            padding-right: 12px;
+            padding-left: 40px;
+            height: 32px;
+            line-height: 32px;
+
+            &:focus {
+                padding-left: 16px;
             }
         }
     }
@@ -95,7 +106,7 @@ export default {
         position: absolute;
         font-size: 20px;
         top: 50%;
-        left: 8px;
+        left: 12px;
         transform: translateY(-50%) scale(1);
         color: #BBBBBB;
         transition: transform 0.2s;

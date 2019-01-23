@@ -1,7 +1,7 @@
 <template>
     <input
-        v-model="value"
-        :class="{small}"
+        :value="value"
+        :class="classes"
         :type="type"
         :placeholder="placeholder"
         @input="update"
@@ -32,6 +32,23 @@ export default {
         small: {
             type: Boolean,
             default: false
+        },
+        wSmall: {
+            type: Boolean,
+            default: false
+        },
+        wMedium: {
+            type: Boolean,
+            default: false
+        },
+    },
+    computed: {
+        classes () {
+            return {
+                'small': this.small,
+                'w-small': this.wSmall,
+                'w-medium': this.wMedium,
+            }
         }
     },
     methods: {
@@ -50,20 +67,31 @@ input {
     -webkit-appearance: none;
     border: 1px solid $bd-color-base;
     border-radius: 4px;
-    padding: 8px 16px;
+    padding: 0 16px;
     font-size: 15px;
     width: 100%;
     box-shadow: 1px 1px 3px 0 rgba(0, 0, 0, 0.1) inset;
     color: $text-color-base;
+    height: 40px;
+    line-height: 40px;
 
     &:focus {
         outline-color: #4db6ac;
     }
 
     &.small {
-        padding: 4px 12px;
+        padding: 0 12px;
         font-size: 14px;
-        max-width: 180px;
+        height: 32px;
+        line-height: 32px;
+    }
+
+    &.w-small {
+        max-width: 200px;
+    }
+
+    &.w-medium {
+        max-width: 320px;
     }
 }
 </style>

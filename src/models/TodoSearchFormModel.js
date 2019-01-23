@@ -1,6 +1,6 @@
 export const SortKeys = {
     NEW: 'NEW',
-    DUE_DATE: 'DUE_DATE'
+    LIMIT: 'LIMIT'
 }
 
 export const FilterKeys = {

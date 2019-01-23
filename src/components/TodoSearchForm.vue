@@ -15,6 +15,7 @@
             <ul class="todo-search-form-items">
                 <li>
                     <todo-icon-input v-model="searchForm.freeText"
+                                     small
                                      icon-name="search"
                                      placeholder="Search By Free Word" />
                 </li>
@@ -47,7 +48,7 @@ export default {
         ],
         sortOptions: () => [
             { label: '新規登録順', value: SortKeys.NEW },
-            { label: '期限が近い順', value: SortKeys.DUE_DATE },
+            { label: '期限が近い順', value: SortKeys.LIMIT },
         ]
     }
 }
@@ -86,10 +87,14 @@ export default {
 }
 .tab-item {
     display: block;
-    padding-left: 16px;
-    padding-right: 16px;
+    padding: 5px 16px;
     text-align: center;
     cursor: pointer;
+    transition: background-color 0.2s;
+
+    &:hover {
+        background-color: rgba($bd-color-base, 0.6);
+    }
 
     &.active {
         background-color: $bd-color-base;

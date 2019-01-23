@@ -1,6 +1,11 @@
 import {FilterKeys, SortKeys} from '../models/TodoSearchFormModel';
+import DateService from './DateService';
 
 export default class TodoService {
+
+    constructor () {
+        this.dateService = new DateService();
+    }
 
     filterTodos (todos, filterKey) {
         return todos.filter((v) => {
@@ -21,8 +26,8 @@ export default class TodoService {
         switch (sortKey) {
             case SortKeys.NEW:
                 return todos.sort((a, b) => a.createdTime > b.createdTime ? 1 : -1);
-            case SortKeys.DUE_DATE:
-                return todos.sort((a, b) => a.limitTime !== null || a.limitTime > b.limitTime ? 1 : -1);
+            case SortKeys.LIMIT:
+                return todos.sort((a, b) => a.limitTime > b.limitTime ? 1 : -1);
         }
     }
 
@@ -34,17 +39,17 @@ export default class TodoService {
         const limitDay = limitDate.getDate();
         const currentDate = new Date();
 
-        if (limitDate.getFullYear() === currentDate.getFullYear()) {
+        if (limitYear === currentDate.getFullYear()) {
             if (limitMonth === currentDate.getMonth() + 1) {
                 const currentDay = currentDate.getDate();
                 if (limitDay === currentDay) return '今日';
                 if (limitDay === currentDay + 1) return '明日';
             }
 
-            return `${limitMonth}/${limitDay}`
+            return this.dateService.formatDate(limitDate, 'MM/DD');
 
         } else {
-            return `${limitYear}/${limitMonth}/${limitDay}`
+            return this.dateService.formatDate(limitDate, 'YYYY/MM/DD')
         }
     }
 

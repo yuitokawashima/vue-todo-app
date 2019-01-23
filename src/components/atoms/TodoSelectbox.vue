@@ -1,6 +1,6 @@
 <template>
     <div class="todo-select">
-        <select :selected="selected" :name="name">
+        <select :selected="selected" :name="name" @change="updateValue">
             <option v-for="obj in options" :value="obj.value" :key="obj.value">
                 {{ obj.label }}
             </option>
@@ -21,8 +21,8 @@ export default {
     },
     methods: {
         updateValue (e) {
-            this.$emit('change', e.target.value);
             this.$emit('selected', e.target.value);
+            this.$emit('change', e.target.value);
         }
     }
 }
@@ -59,7 +59,7 @@ select {
     -webkit-appearance: none;
     width: 100%;
     background-color: $bg-base;
-    padding: 9px 24px 9px 16px;
+    padding: 9px 40px 9px 16px;
     border-color: $bd-color-base;
     line-height: 1;
     box-shadow: 1px 1px 3px 0 rgba(0, 0, 0, 0.1) inset;
